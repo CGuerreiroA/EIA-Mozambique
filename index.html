@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADRA Mozambique Environmental Dashboards</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-custom {
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .icon-large {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        .main-title {
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 50px;
+        }
+        .project-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: white;
+        }
+        .badge-draft {
+            background-color: #ffc107;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="text-center mb-5">
+                    <img src="adra-logo.png" alt="ADRA Logo" class="img-fluid mb-4" style="max-height: 100px;">
+                    <h1 class="main-title display-4 fw-bold">ADRA Mozambique</h1>
+                    <h2 class="main-title h3">Environmental Impact Assessment Dashboards</h2>
+                    <p class="text-white-50 lead">Cabo Delgado Province - Planned Environmental Impact Assessment & Projections</p>
+                </div>
+
+                <!-- Project Information -->
+                <div class="project-info">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-map-marker-alt me-2"></i>Project Location</h5>
+                            <p class="mb-2"><strong>Province:</strong> Cabo Delgado</p>
+                            <p class="mb-2"><strong>Districts:</strong> Montepuez and Metuge</p>
+                            <p class="mb-0"><strong>Sites:</strong> Mieze, Metuge, Montepuez, Pemba-Metuge</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-users me-2"></i>Planned Beneficiaries</h5>
+                            <p class="mb-2"><strong>Direct Assistance:</strong> 30,000 people</p>
+                            <p class="mb-2"><strong>Displaced Persons:</strong> 15,000 people</p>
+                            <p class="mb-0"><strong>Total Coverage:</strong> 60,000 people</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Cards -->
+                <div class="row g-4">
+                    <!-- Energy Dashboard -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="icon-large text-warning">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <h4 class="card-title">Energy Dashboard</h4>
+                                <p class="card-text">Planned energy interventions and emission reduction targets. Focus on renewable energy adoption and energy-saving cookstove distribution.</p>
+                                <div class="mb-3">
+                                    <span class="badge bg-success">Target: 2.88 tCO₂e/month reduction</span>
+                                </div>
+                                <a href="mozambique-energy-dashboard.html" class="btn btn-warning btn-custom">
+                                    <i class="fas fa-chart-line me-2"></i>View Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Water Dashboard -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="icon-large text-info">
+                                    <i class="fas fa-tint"></i>
+                                </div>
+                                <h4 class="card-title">Water Dashboard <span class="badge badge-draft">DRAFT</span></h4>
+                                <p class="card-text">Water resource management and WASH activities planning. Includes dam construction, borehole development, and water conservation measures.</p>
+                                <div class="mb-3">
+                                    <span class="badge bg-info">50-74% solar energy for WASH</span>
+                                </div>
+                                <a href="mozambique-water-dashboard-DRAFT.html" class="btn btn-info btn-custom">
+                                    <i class="fas fa-chart-area me-2"></i>View Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Waste Management Dashboard -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="icon-large text-success">
+                                    <i class="fas fa-recycle"></i>
+                                </div>
+                                <h4 class="card-title">Waste Management Dashboard</h4>
+                                <p class="card-text">Planned waste management interventions and environmental protection measures across project sites in Cabo Delgado.</p>
+                                <div class="mb-3">
+                                    <span class="badge bg-success">7 planned project sites</span>
+                                </div>
+                                <a href="mozambique-waste-management-dashboard.html" class="btn btn-success btn-custom">
+                                    <i class="fas fa-chart-pie me-2"></i>View Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vegetation & Biomass Dashboard -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="icon-large text-primary">
+                                    <i class="fas fa-leaf"></i>
+                                </div>
+                                <h4 class="card-title">Vegetation & Biomass Dashboard <span class="badge badge-draft">DRAFT</span></h4>
+                                <p class="card-text">Forest conservation and sustainable biomass management. Includes responsible fuelwood harvesting and vegetation protection strategies.</p>
+                                <div class="mb-3">
+                                    <span class="badge bg-primary">Tropical & subtropical forest focus</span>
+                                </div>
+                                <a href="mozambique-vegetation-biomass-dashboard-DRAFT.html" class="btn btn-primary btn-custom">
+                                    <i class="fas fa-chart-bar me-2"></i>View Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Environmental Context -->
+                <div class="project-info mt-4">
+                    <h5><i class="fas fa-globe-americas me-2"></i>Environmental Context</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="mb-2"><strong>Climate:</strong> Tropical & subtropical</p>
+                            <p class="mb-0"><strong>Temperature:</strong> ~26°C average</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-2"><strong>Precipitation:</strong> 1,200mm annually</p>
+                            <p class="mb-0"><strong>Rainy Season:</strong> October-March</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-2"><strong>Project Area:</strong> 19,058 km²</p>
+                            <p class="mb-0"><strong>Elevation:</strong> 527m mean</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="text-center mt-5">
+                    <p class="text-white-50">
+                        <i class="fas fa-info-circle me-2"></i>
+                        These dashboards present planned environmental interventions and projected impacts based on Environmental Impact Assessment (EIA) reports for Cabo Delgado Province, Mozambique.
+                    </p>
+                    <p class="text-white-50 small">
+                        <i class="fas fa-calendar me-2"></i>
+                        Last Updated: July 2025 | 
+                        <i class="fas fa-building me-2"></i>
+                        ADRA Deutschland e.V.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

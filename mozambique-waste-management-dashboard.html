@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mozambique Waste Management Dashboard - Cabo Delgado Province</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .dashboard-container {
+            background: rgba(255, 255, 255, 0.95);
+            margin: 15px;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            position: relative;
+        }
+        .logo-left {
+            position: absolute;
+            left: 20px;
+            top: 25px;
+            height: 65px;
+            width: auto;
+        }
+        .logo-right {
+            position: absolute;
+            right: 20px;
+            top: 25px;
+            background: white;
+            padding: 6px 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .seppa-text {
+            font-weight: 700;
+            color: #2c5530;
+            font-size: 1.2rem;
+        }
+        .seppa-fundacao {
+            font-size: 0.6rem;
+            color: #d4af37;
+            font-weight: 600;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .card-custom {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+            border: 1px solid #e9ecef;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-custom .card-body {
+            flex-grow: 1;
+        }
+        .card-title-icon {
+            margin-right: 8px;
+        }
+        
+        .metric-large {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0;
+        }
+        .metric-label {
+            text-align: center;
+            color: #666;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .waste-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .mitigation-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #27ae60;
+        }
+        .mitigation-item h6 {
+            color: #1e7e34;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        
+        .risk-item {
+            background: #fff5f5;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #e53e3e;
+        }
+        .risk-item h6 {
+            color: #c53030;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        
+        .impact-metric {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .impact-metric .metric-large {
+            font-size: 1.6rem;
+            margin-bottom: 2px;
+        }
+        .impact-metric .metric-label {
+            font-size: 0.85rem;
+            line-height: 1.2;
+        }
+        
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border-radius: 2px;
+        }
+        
+        #wasteMap {
+            height: 450px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .location-details-card {
+            background: #ffffff;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        
+        .waste-type {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .waste-type-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            width: 45px;
+            text-align: center;
+        }
+        
+        .timeline-container {
+            position: relative;
+            padding-left: 25px;
+            margin-top: 15px;
+        }
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 5px;
+            bottom: 5px;
+            width: 2px;
+            background: #dee2e6;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .timeline-item::before {
+            content: '\f0a9';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: -28px;
+            top: 15px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #27ae60;
+            color: white;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+        .chart-container h4 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .achievement-metric {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .achievement-metric .metric-large {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .achievement-metric .metric-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <img src="adra-logo.png" alt="ADRA Logo" class="logo-left">
+            <div class="logo-right">
+                <div class="seppa-fundacao">FUNDAÇÃO</div>
+                <div class="seppa-text">SEPPA</div>
+            </div>
+            <h1><i class="fas fa-recycle"></i> Mozambique Waste Management Dashboard</h1>
+            <p class="subtitle">Cabo Delgado Province - EIA Assessment & Planned Waste Management Interventions</p>
+            <div class="text-center mb-3">
+                <a href="index.html" class="btn btn-light btn-sm">
+                    <i class="fas fa-home me-2"></i>Back to Home
+                </a>
+            </div>
+            <div class="row g-3 justify-content-center">
+                <div class="col-6 col-md-3">
+                    <div class="achievement-metric">
+                        <div class="metric-large text-danger">0%</div>
+                        <div class="metric-label">Current Segregation</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="achievement-metric">
+                        <div class="metric-large text-warning">High</div>
+                        <div class="metric-label">Contamination Risk</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="achievement-metric">
+                        <div class="metric-large text-info">3</div>
+                        <div class="metric-label">Collection Points</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="achievement-metric">
+                        <div class="metric-large text-success">15+</div>
+                        <div class="metric-label">Planned Measures</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="row g-3">
+            <!-- Left Column -->
+            <div class="col-lg-7">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Project Locations & Waste Collection Points</h4>
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <div id="wasteMap"></div>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="location-details-card">
+                                    <div class="card-header fw-bold">Metuge District Market</div>
+                                    <div class="card-body p-2">
+                                        <p class="mb-1 small"><strong>Coordinates:</strong> 12°58'S, 40°23'E</p>
+                                        <p class="mb-1 small">Buys old plastics, plastic materials, iron, and cans. Sells to recycling companies in Nacala Port.</p>
+                                        <span class="badge bg-success">Active Buyer</span>
+                                        <span class="badge bg-info">Plastics & Metals</span>
+                                    </div>
+                                </div>
+                                <div class="location-details-card">
+                                    <div class="card-header fw-bold">Yopipila</div>
+                                    <div class="card-body p-2">
+                                        <p class="mb-1 small"><strong>Location:</strong> -12.967°S, 40.574°E</p>
+                                        <p class="mb-1 small">Buys old plastics, plastic materials, iron, and cans. Active recycling services for Pemba communities.</p>
+                                        <span class="badge bg-success">Active Buyer</span>
+                                        <span class="badge bg-info">Plastics & Metals</span>
+                                    </div>
+                                </div>
+                                <div class="location-details-card">
+                                    <div class="card-header fw-bold">Association of Recyclers from Pemba</div>
+                                    <div class="card-body p-2">
+                                        <p class="mb-1 small"><strong>Location:</strong> -12.959°S, 40.506°E</p>
+                                        <p class="mb-1 small">Organized recycling association buying old plastics, plastic materials, iron, and cans from local communities.</p>
+                                        <span class="badge bg-success">Active Association</span>
+                                        <span class="badge bg-info">Plastics & Metals</span>
+                                    </div>
+                                </div>
+                                <div class="location-details-card">
+                                    <div class="card-header fw-bold">Montepuez Area</div>
+                                    <div class="card-body p-2">
+                                        <p class="mb-1 small">High prevalence of open burning practices. Small recyclers have expressed interest in project waste. Planned plastics collection points to be established in each community.</p>
+                                        <span class="badge bg-warning">Open Burning</span>
+                                        <span class="badge bg-success">Recycler Interest</span>
+                                        <span class="badge bg-primary">Collection Points Planned</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-5">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Current Waste Composition</h4>
+                        <div class="chart-container mb-2">
+                            <canvas id="wasteCompositionChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="disposalMethodsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-1">
+            <!-- Critical Waste Management Risks -->
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Critical Waste Management Risks</h4>
+                        <div class="risk-item">
+                            <h6 class="text-danger"><i class="fas fa-fire card-title-icon"></i>Zero Waste Segregation</h6>
+                            <p class="small mb-0">All waste streams mixed together, including hazardous medical/chemical waste, e-waste, and plastics. Predominant disposal via open burning.</p>
+                        </div>
+                        <div class="risk-item">
+                            <h6 class="text-danger"><i class="fas fa-skull-crossbones card-title-icon"></i>Hazardous Waste Contamination</h6>
+                            <p class="small mb-0">Medical waste (syringes, expired medications) and chemical waste (cleaning agents, pesticides) disposed in open landfills, poisoning soil and water.</p>
+                        </div>
+                         <div class="risk-item">
+                            <h6 class="text-warning"><i class="fas fa-hammer card-title-icon"></i>Construction Waste Issues</h6>
+                            <p class="small mb-0">No planned disposal method for hazardous construction waste (cement bags, PVC piping) from water point rehabilitation activities.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Planned Mitigation Measures -->
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Planned Mitigation Measures</h4>
+                        <div class="mitigation-item">
+                            <h6><i class="fas fa-graduation-cap card-title-icon"></i>Community Training & Sensitization</h6>
+                            <p class="small mb-0">Disaster risk committees will provide waste management training during house visits. School visits with Infrastructure Department support.</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6><i class="fas fa-sort card-title-icon"></i>Mandatory Waste Sorting</h6>
+                            <p class="small mb-0">Implement mandatory waste sorting at all water infrastructure construction sites with material recovery protocols for debris.</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6><i class="fas fa-map-marker-alt card-title-icon"></i>Collection Points & Partnerships</h6>
+                            <p class="small mb-0">Establish plastics collection points in each community. Partner with small recyclers in Montepuez and Pemba areas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-1">
+            <!-- Waste Types & Current Practices -->
+            <div class="col-lg-5">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Waste Types & Current Practices</h4>
+                        <div class="waste-type">
+                            <div class="waste-type-icon text-danger"><i class="fas fa-shopping-bag"></i></div>
+                            <div>
+                                <h6 class="mb-0">Plastic Waste</h6>
+                                <p class="small text-muted mb-0">Thin plastic bags, packaging. Disposed via incineration and unlicensed landfilling, releasing toxic chemicals.</p>
+                            </div>
+                        </div>
+                        <div class="waste-type">
+                            <div class="waste-type-icon text-warning"><i class="fas fa-file-alt"></i></div>
+                            <div>
+                                <h6 class="mb-0">Paper & Cardboard</h6>
+                                <p class="small text-muted mb-0">All non-reusable paper incinerated or used as fuel due to lack of collection systems and awareness.</p>
+                            </div>
+                        </div>
+                        <div class="waste-type">
+                            <div class="waste-type-icon text-danger"><i class="fas fa-syringe"></i></div>
+                            <div>
+                                <h6 class="mb-0">Hazardous & Medical</h6>
+                                <p class="small text-muted mb-0">Syringes, expired medications, chemicals disposed in open landfills or burned, contaminating soil and water.</p>
+                            </div>
+                        </div>
+                        <div class="waste-type">
+                            <div class="waste-type-icon text-info"><i class="fas fa-battery-half"></i></div>
+                            <div>
+                                <h6 class="mb-0">E-Waste</h6>
+                                <p class="small text-muted mb-0">Small batteries from community and project activities mixed with other waste streams without proper disposal.</p>
+                            </div>
+                        </div>
+                        <div class="waste-type">
+                            <div class="waste-type-icon text-success"><i class="fas fa-seedling"></i></div>
+                            <div>
+                                <h6 class="mb-0">Organic Waste</h6>
+                                <p class="small text-muted mb-0">Cooking and food processing residues. Generally repurposed as animal feed or for community-chosen uses.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation Roadmap -->
+            <div class="col-lg-7">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Waste Management Implementation Roadmap</h4>
+                        <div class="timeline-container">
+                            <div class="timeline-item">
+                                <h6 class="mb-1">Phase 1: Community Education & Awareness</h6>
+                                <p class="small text-muted mb-0">Launch sensitization campaigns, school visits, and house-to-house training on waste segregation and environmental risks.</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h6 class="mb-1">Phase 2: Infrastructure & Collection Systems</h6>
+                                <p class="small text-muted mb-0">Establish plastics collection points, designated areas for specialized waste, and partnerships with local recyclers.</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h6 class="mb-1">Phase 3: Construction Site Management</h6>
+                                <p class="small text-muted mb-0">Implement mandatory sorting at water infrastructure sites, material recovery protocols, and environmental monitoring.</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h6 class="mb-1">Phase 4: Specialized Training & Integration</h6>
+                                <p class="small text-muted mb-0">Train health facility staff on hazardous waste, integrate waste management into WaSH committee trainings, and develop visual guides.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EIA-Based Target Metrics -->
+        <h2 class="section-title">EIA-Based Target Metrics & Projections</h2>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Waste Segregation Target</h5>
+                    <div class="metric-large text-success">80%</div>
+                    <p class="metric-label mb-2">Planned Community Adoption</p>
+                    <div class="mt-2">
+                        <span class="badge bg-success">From 0% Current</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Collection Points</h5>
+                    <div class="metric-large text-info">15+</div>
+                    <p class="metric-label mb-2">Planned Community Sites</p>
+                    <div class="mt-2">
+                        <span class="badge bg-info">Specialized Waste</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Recycling Partnerships</h5>
+                    <div class="metric-large text-warning">5+</div>
+                    <p class="metric-label mb-2">Local Recycler Network</p>
+                    <div class="mt-2">
+                        <span class="badge bg-warning">Active Interest</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environmental & Health Impact Projections -->
+        <div class="row g-3 mt-2">
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Projected Environmental Benefits</h4>
+                        <div class="mitigation-item">
+                            <h6 class="text-success"><i class="fas fa-leaf card-title-icon"></i>Contamination Reduction</h6>
+                            <p class="small mb-1">Target: <strong>Eliminate soil and water contamination</strong> from proper hazardous waste disposal</p>
+                            <p class="small text-muted mb-0">Protect water retention systems and underground water bodies</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6 class="text-primary"><i class="fas fa-recycle card-title-icon"></i>Material Recovery</h6>
+                            <p class="small mb-1">Target: <strong>70% construction material reuse</strong> through recovery protocols</p>
+                            <p class="small text-muted mb-0">Bricks, metal, and plastic materials repurposed for community benefit</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6 class="text-warning"><i class="fas fa-fire-extinguisher card-title-icon"></i>Open Burning Elimination</h6>
+                            <p class="small mb-1">Target: <strong>90% reduction in open burning</strong> practices</p>
+                            <p class="small text-muted mb-0">Significantly reduce toxic chemical emissions in Metuge and Montepuez</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Health & Social Impact Projections</h4>
+                        <div class="mitigation-item">
+                            <h6 class="text-info"><i class="fas fa-lungs card-title-icon"></i>Respiratory Health Improvement</h6>
+                            <p class="small mb-1">Target: <strong>Reduced respiratory disease risk</strong> for displaced persons</p>
+                            <p class="small text-muted mb-0">Eliminate toxic chemical exposure from plastic incineration</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6 class="text-success"><i class="fas fa-hand-holding-usd card-title-icon"></i>Community Economic Benefits</h6>
+                            <p class="small mb-1">Target: <strong>Income generation from waste sales</strong> to collectors</p>
+                            <p class="small text-muted mb-0">Community responsibility for sale and earnings from recyclable materials</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6 class="text-primary"><i class="fas fa-graduation-cap card-title-icon"></i>Knowledge & Capacity Building</h6>
+                            <p class="small mb-1">Target: <strong>Community-wide waste management knowledge</strong></p>
+                            <p class="small text-muted mb-0">Long-term behavior change through education and visual guides</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize map
+            const map = L.map('wasteMap', {
+                keyboard: false,
+                zoomControl: true,
+                closePopupOnClick: false
+            }).setView([-12.95, 40.2], 9);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            const locations = [
+                { name: 'Montepuez', lat: -13.1258, lng: 38.7097, type: 'project' },
+                { name: 'Metuge Market', lat: -12.9667, lng: 40.3833, type: 'collection' },
+                { name: 'Yopipila', lat: -12.967382724627324, lng: 40.57384129394096, type: 'collection' },
+                { name: 'Association of Recyclers from Pemba', lat: -12.959032198111252, lng: 40.50618697773343, type: 'collection' }
+            ];
+
+            locations.forEach(location => {
+                const marker = L.marker([location.lat, location.lng], {
+                    interactive: false
+                }).addTo(map);
+                marker.off();
+                marker._icon.style.pointerEvents = 'none';
+            });
+
+            // Initialize Charts
+            const wasteCtx = document.getElementById('wasteCompositionChart');
+            if (wasteCtx) {
+                new Chart(wasteCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Organic', 'Plastic', 'Paper/Cardboard', 'Hazardous', 'E-waste', 'Construction'],
+                        datasets: [{
+                            data: [40, 25, 15, 10, 5, 5],
+                            backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#6f42c1', '#17a2b8', '#6c757d']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Current Waste Composition (%)'
+                            }
+                        }
+                    }
+                });
+            }
+
+            const disposalCtx = document.getElementById('disposalMethodsChart');
+            if (disposalCtx) {
+                new Chart(disposalCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Open Burning', 'Dumping', 'Landfill', 'Reuse'],
+                        datasets: [{
+                            label: 'Current Methods (%)',
+                            data: [45, 35, 15, 5],
+                            backgroundColor: ['#dc3545', '#6c757d', '#ffc107', '#28a745']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Current Disposal Methods'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 50
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

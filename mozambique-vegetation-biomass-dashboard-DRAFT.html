@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mozambique Vegetation & Biomass Dashboard - Cabo Delgado Province</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #27ae60 0%, #2d8f47 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .dashboard-container {
+            background: rgba(255, 255, 255, 0.95);
+            margin: 15px;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            position: relative;
+        }
+        .logo-left {
+            position: absolute;
+            left: 20px;
+            top: 25px;
+            height: 65px;
+            width: auto;
+        }
+        .logo-right {
+            position: absolute;
+            right: 20px;
+            top: 25px;
+            background: white;
+            padding: 6px 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .seppa-text {
+            font-weight: 700;
+            color: #2c5530;
+            font-size: 1.2rem;
+        }
+        .seppa-fundacao {
+            font-size: 0.6rem;
+            color: #d4af37;
+            font-weight: 600;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .card-custom {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+            border: 1px solid #e9ecef;
+            height: 100%;
+        }
+        .card-title-icon {
+            margin-right: 8px;
+        }
+        .section-title {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 5px;
+        }
+        .metric-large {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0;
+        }
+        .metric-label {
+            text-align: center;
+            color: #666;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 15px;
+        }
+        .data-source {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        .mitigation-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #27ae60;
+        }
+        .mitigation-item h6 {
+            color: #2d8f47;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        .challenge-item {
+            background: #fff5f5;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #e74c3c;
+        }
+        .challenge-item h6 {
+            color: #c0392b;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        .location-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #27ae60;
+        }
+        .location-card h6 {
+            color: #2d8f47;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        #vegetationMap {
+            height: 400px;
+            border-radius: 8px;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 15px;
+        }
+        .timeline-item::before {
+            content: '\f0a9';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: #27ae60;
+        }
+        .timeline-item h6 {
+            color: #2d8f47;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .energy-source-item {
+            background: #fff3cd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #f39c12;
+        }
+        .energy-source-item h6 {
+            color: #e67e22;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <img src="adra-logo.png" alt="ADRA Logo" class="logo-left">
+            <div class="logo-right">
+                <div class="seppa-fundacao">FUNDAÇÃO</div>
+                <div class="seppa-text">SEPPA</div>
+            </div>
+            <h1><i class="fas fa-leaf"></i> Mozambique Vegetation & Biomass Dashboard</h1>
+            <p class="subtitle">Cabo Delgado Province - EIA Assessment & Planned Conservation Interventions</p>
+            <div class="text-center mb-3">
+                <a href="index.html" class="btn btn-light btn-sm">
+                    <i class="fas fa-home me-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">IDPs</h5>
+                    <div class="metric-large text-primary">15,000</div>
+                    <p class="metric-label">Internally Displaced Persons</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Target Beneficiaries</h5>
+                    <div class="metric-large text-success">45,000</div>
+                    <p class="metric-label">Direct Project Assistance</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Forest Degradation</h5>
+                    <div class="metric-large text-warning">67%</div>
+                    <p class="metric-label">Vegetation Shows Degradation</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Clean Cooking Access</h5>
+                    <div class="metric-large text-danger">4.1%</div>
+                    <p class="metric-label">Population with Access (2022)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Locations and Vegetation Status -->
+        <div class="row g-3">
+            <!-- Left Column - Map -->
+            <div class="col-lg-7">
+                <div class="card-custom">
+                    <h4 class="section-title">Project Locations & Forest Areas</h4>
+                    <div id="vegetationMap"></div>
+                </div>
+            </div>
+
+            <!-- Right Column - Vegetation Status -->
+            <div class="col-lg-5">
+                <div class="card-custom">
+                    <h4 class="section-title">Vegetation & Forest Status</h4>
+                    <div class="location-card">
+                        <h6><i class="fas fa-tree card-title-icon"></i>Tropical & Subtropical Forest</h6>
+                        <p class="mb-1 small"><strong>Type:</strong> Dominant natural vegetation</p>
+                        <p class="mb-1 small">Primary forest cover across project area. Not significantly altered by human activities but showing degradation signs.</p>
+                        <span class="badge bg-success">Primary Cover</span>
+                        <span class="badge bg-warning">Degradation Risk</span>
+                    </div>
+                    <div class="location-card">
+                        <h6><i class="fas fa-fire card-title-icon"></i>Degradation Hotspots</h6>
+                        <p class="mb-1 small"><strong>Coverage:</strong> ~67% of vegetation cover</p>
+                        <p class="mb-1 small">Areas showing signs of degradation from deforestation, agriculture clearing, wildfires, and climate change impacts.</p>
+                        <span class="badge bg-danger">High Risk</span>
+                        <span class="badge bg-warning">Multiple Causes</span>
+                    </div>
+                    <div class="location-card">
+                        <h6><i class="fas fa-seedling card-title-icon"></i>Conservation Priority Areas</h6>
+                        <p class="mb-1 small"><strong>Focus:</strong> Remaining intact forest</p>
+                        <p class="mb-1 small">~33% of vegetation cover remains relatively intact and requires priority conservation efforts.</p>
+                        <span class="badge bg-primary">Priority</span>
+                        <span class="badge bg-success">Conservation Target</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Energy Sources and Clean Cooking Access -->
+        <div class="row g-3 mt-1">
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <h4 class="section-title">Clean Cooking Access Trends</h4>
+                    <div class="chart-container">
+                        <canvas id="cleanCookingChart"></canvas>
+                    </div>
+                    <div class="data-source">Source: Our World in Data (https://ourworldindata.org/)</div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <h4 class="section-title">Indoor Air Pollution Impact</h4>
+                    <div class="chart-container">
+                        <canvas id="airPollutionChart"></canvas>
+                    </div>
+                    <div class="data-source">Source: Our World in Data (https://ourworldindata.org/)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Energy Sources and Degradation Drivers -->
+        <div class="row g-3 mt-1">
+            <!-- Current Energy Sources -->
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <h4 class="section-title">Current Energy Sources & Challenges</h4>
+                    <div class="energy-source-item">
+                        <h6><i class="fas fa-fire card-title-icon"></i>Traditional Biomass Dominance</h6>
+                        <p class="small mb-0">Wood, charcoal, LPG, and paper used for cooking. Traditional biomass stoves are the major cooking method in communities.</p>
+                    </div>
+                    <div class="energy-source-item">
+                        <h6><i class="fas fa-gas-pump card-title-icon"></i>High Fossil Fuel Transport</h6>
+                        <p class="small mb-0">Over 85% of project transport relies on fossil fuels (gasoline motorcycles, diesel 4x4 vehicles) with long trip distances >200km.</p>
+                    </div>
+                    <div class="energy-source-item">
+                        <h6><i class="fas fa-solar-panel card-title-icon"></i>Limited Renewable Energy</h6>
+                        <p class="small mb-0">Despite high solar potential, renewables constitute less than 5% of operational energy mix. Supplier sites lack solar power.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vegetation Degradation Drivers -->
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <h4 class="section-title">Vegetation Degradation Drivers</h4>
+                    <div class="challenge-item">
+                        <h6><i class="fas fa-axe card-title-icon"></i>Deforestation & Agriculture Clearing</h6>
+                        <p class="small mb-0">Primary driver of forest loss through clearing for agricultural expansion and timber extraction activities.</p>
+                    </div>
+                    <div class="challenge-item">
+                        <h6><i class="fas fa-fire-flame-curved card-title-icon"></i>Wildfires & Uncontrolled Burning</h6>
+                        <p class="small mb-0">Frequent wildfires and uncontrolled burning practices contribute significantly to vegetation degradation.</p>
+                    </div>
+                    <div class="challenge-item">
+                        <h6><i class="fas fa-thermometer-full card-title-icon"></i>Climate Change & Pollution</h6>
+                        <p class="small mb-0">Increasing temperatures, changing precipitation patterns, and pollution from mining & industry accelerate degradation.</p>
+                    </div>
+                    <div class="challenge-item">
+                        <h6><i class="fas fa-tree card-title-icon"></i>Unassessed Firewood Needs</h6>
+                        <p class="small mb-0">Cooking demonstrations and community activities have unassessed firewood needs, exacerbating deforestation risks.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Results & Activities -->
+        <div class="row g-3 mt-1">
+            <div class="col-12">
+                <div class="card-custom">
+                    <h4 class="section-title">Project Results & Environmental Activities</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mitigation-item">
+                                <h6><i class="fas fa-shield-alt card-title-icon"></i>Result 1: Disaster Preparedness & Civil Protection (30%)</h6>
+                                <p class="small mb-2">Increased capacity for life-saving measures through localized civil protection and first responder training.</p>
+                                <ul class="small mb-0">
+                                    <li><strong>Activity 1.1:</strong> Strengthen local first responder capacities with tailored training</li>
+                                    <li><strong>Activity 1.2:</strong> Women-led early warning platform via SMS/mobile for disaster preparedness</li>
+                                    <li><strong>Activity 1.3:</strong> Community-based basic services with local steering committees</li>
+                                    <li><strong>Activity 1.4:</strong> Local coordination with UN cluster system participation</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mitigation-item">
+                                <h6><i class="fas fa-seedling card-title-icon"></i>Result 2: Food Security & Environmental Assessment (45%)</h6>
+                                <p class="small mb-2">Improving food security with focus on women-headed and marginalized households.</p>
+                                <ul class="small mb-0">
+                                    <li><strong>Activity 2.1:</strong> Local Food Security Monitoring Systems with Environmental Assessments (NEAT+ & ADRA)</li>
+                                    <li><strong>Activity 2.2:</strong> Cash/in-kind aid packages through local steering committees</li>
+                                    <li><strong>Activity 2.4:</strong> Nutrition awareness and cooking demonstrations targeting PLWs and children</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environmental Integration with Project Activities -->
+        <div class="row g-3 mt-1">
+            <div class="col-12">
+                <div class="card-custom">
+                    <h4 class="section-title">Environmental Integration & Biomass Conservation</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mitigation-item">
+                                <h6><i class="fas fa-fire card-title-icon"></i>Energy-Efficient Cooking Demonstrations</h6>
+                                <p class="small mb-0">Activity 2.4 cooking demonstrations will include energy-saving cookstove distribution and training on efficient biomass use to reduce deforestation pressure.</p>
+                            </div>
+
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mitigation-item">
+                                <h6><i class="fas fa-female card-title-icon"></i>Women-Led Environmental Monitoring</h6>
+                                <p class="small mb-0">Activity 1.2 women-led platform will include environmental early warnings and community-based forest monitoring through mobile communication systems.</p>
+                            </div>
+                            <div class="mitigation-item">
+                                <h6><i class="fas fa-users card-title-icon"></i>Community Steering Committees</h6>
+                                <p class="small mb-0">Activities 1.3 & 2.1 local steering committees will integrate biomass conservation and sustainable energy practices into community-based service delivery.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biomass Conservation Suggestions & Roadmap -->
+        <div class="row g-3 mt-2">
+            <div class="col-12">
+                <div class="card-custom">
+                    <h4 class="section-title">Biomass Conservation Suggestions & Roadmap</h4>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="timeline-item">
+                                <h6>Short-term: Community Awareness</h6>
+                                <p class="small mb-0">Integrate biomass conservation messaging into Activity 2.4 cooking demonstrations and nutrition awareness sessions to reduce firewood consumption.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="timeline-item">
+                                <h6>Medium-term: Technology Introduction</h6>
+                                <p class="small mb-0">Explore energy-saving cookstove distribution as mitigation measure during cooking demonstrations to reduce pressure on forest resources.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="timeline-item">
+                                <h6>Long-term: Sustainable Practices</h6>
+                                <p class="small mb-0">Establish community-based forest monitoring through Activity 1.2 women-led platform and integrate conservation into local steering committees.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project-Based Target Metrics -->
+        <h2 class="section-title mt-4">Project-Based Target Metrics & Projections</h2>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Disaster Preparedness</h5>
+                    <div class="metric-large text-info">30%</div>
+                    <p class="metric-label mb-2">Project Volume (Result 1)</p>
+                    <div class="mt-2">
+                        <span class="badge bg-info">Target: Civil Protection</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Food Security Focus</h5>
+                    <div class="metric-large text-warning">45%</div>
+                    <p class="metric-label mb-2">Project Volume (Result 2)</p>
+                    <div class="mt-2">
+                        <span class="badge bg-warning">Target: Vulnerable HH</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Cookstove Distribution</h5>
+                    <div class="metric-large text-warning">1,986</div>
+                    <p class="metric-label mb-2">Proposed Families</p>
+                    <div class="mt-2">
+                        <span class="badge bg-warning">Proposed: Activity 2.4</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Biomass Conservation</h5>
+                    <div class="metric-large text-success">33%</div>
+                    <p class="metric-label mb-2">Intact Forest Target</p>
+                    <div class="mt-2">
+                        <span class="badge bg-success">Target: Protected</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environmental and Health Impact Projections -->
+        <div class="row g-3 mt-2">
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <h4 class="section-title">Projected Environmental Benefits</h4>
+                    <div class="mitigation-item">
+                        <h6><i class="fas fa-leaf card-title-icon"></i>Biomass Conservation</h6>
+                        <p class="small mb-0">Reduced pressure on forest resources through efficient cookstoves and alternative energy sources.</p>
+                    </div>
+                    <div class="mitigation-item">
+                        <h6><i class="fas fa-smog card-title-icon"></i>Emission Reductions</h6>
+                        <p class="small mb-0">Lower greenhouse gas emissions from reduced fossil fuel transport and improved cooking efficiency.</p>
+                    </div>
+                    <div class="mitigation-item">
+                        <h6><i class="fas fa-tree card-title-icon"></i>Forest Restoration</h6>
+                        <p class="small mb-0">Reduced deforestation pressure allowing natural forest regeneration in degraded areas.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <h4 class="section-title">Social Impact Projections</h4>
+                    <div class="mitigation-item">
+                        <h6><i class="fas fa-lungs card-title-icon"></i>Health Improvements</h6>
+                        <p class="small mb-0">Reduced indoor air pollution from efficient cookstoves, lowering respiratory disease risks and death rates.</p>
+                    </div>
+                    <div class="mitigation-item">
+                        <h6><i class="fas fa-female card-title-icon"></i>Gender Benefits</h6>
+                        <p class="small mb-0">Reduced time spent collecting firewood, allowing women more time for education and economic activities.</p>
+                    </div>
+                    <div class="mitigation-item">
+                        <h6><i class="fas fa-graduation-cap card-title-icon"></i>Capacity Building & Training</h6>
+                        <p class="small mb-0">Enhanced community knowledge through Activities 1.1 & 2.4: first responder training, nutrition awareness, and sustainable energy practices.</p>
+                    </div>
+                    <div class="mitigation-item">
+                        <h6><i class="fas fa-mobile-alt card-title-icon"></i>Digital Communication Platform</h6>
+                        <p class="small mb-0">Activity 1.2 women-led SMS/mobile platform for environmental early warnings and community coordination on conservation efforts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize map
+            const map = L.map('vegetationMap', {
+                keyboard: false,
+                zoomControl: true,
+                closePopupOnClick: false
+            }).setView([-12.95, 40.2], 9);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            const locations = [
+                { name: 'Montepuez', lat: -13.1258, lng: 38.7097 },
+                { name: 'Pemba', lat: -12.9667, lng: 40.5167 },
+                { name: 'Forest Area 1', lat: -13.0, lng: 38.9 },
+                { name: 'Forest Area 2', lat: -12.8, lng: 40.3 },
+                { name: 'Degradation Hotspot', lat: -13.2, lng: 39.1 }
+            ];
+
+            locations.forEach(location => {
+                const marker = L.marker([location.lat, location.lng], {
+                    interactive: false
+                }).addTo(map);
+                marker.off();
+                marker._icon.style.pointerEvents = 'none';
+            });
+
+            // Clean Cooking Access Chart
+            const cleanCookingCtx = document.getElementById('cleanCookingChart');
+            if (cleanCookingCtx) {
+                new Chart(cleanCookingCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['2000', '2005', '2010', '2015', '2020', '2022'],
+                        datasets: [{
+                            label: 'Access to Clean Fuels (%)',
+                            data: [1.9, 2.4, 2.1, 2.7, 3.9, 4.1],
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Mozambique Clean Cooking Access (2000-2022)'
+                            },
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 10,
+                                title: {
+                                    display: true,
+                                    text: 'Percentage (%)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Indoor Air Pollution Chart
+            const airPollutionCtx = document.getElementById('airPollutionChart');
+            if (airPollutionCtx) {
+                new Chart(airPollutionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['2000', '2005', '2010', '2015', '2020', '2021'],
+                        datasets: [{
+                            label: 'Deaths per 100,000',
+                            data: [245, 230, 220, 215, 210, 208],
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                            borderColor: '#e74c3c',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Indoor Air Pollution Death Rate - Mozambique'
+                            },
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Deaths per 100,000 people'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

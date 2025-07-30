@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mozambique Energy Dashboard - Cabo Delgado Province</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6b35 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .dashboard-container {
+            background: rgba(255, 255, 255, 0.95);
+            margin: 15px;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .logo-left {
+            position: absolute;
+            left: 20px;
+            top: 25px;
+            height: 65px;
+            width: auto;
+        }
+        .logo-right {
+            position: absolute;
+            right: 20px;
+            top: 25px;
+            background: white;
+            padding: 6px 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .seppa-text {
+            font-weight: 700;
+            color: #2c5530;
+            font-size: 1.2rem;
+        }
+        .seppa-fundacao {
+            font-size: 0.6rem;
+            color: #d4af37;
+            font-weight: 600;
+        }
+        .card-custom {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+            border: 1px solid #e9ecef;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-custom .card-body {
+            flex-grow: 1;
+        }
+        .card-title-icon {
+            margin-right: 8px;
+        }
+        
+        .metric-large {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0;
+        }
+        .metric-label {
+            text-align: center;
+            color: #666;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .energy-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .mitigation-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #27ae60;
+        }
+        .mitigation-item h6 {
+            color: #1e7e34;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        
+        .impact-metric {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .impact-metric .metric-large {
+            font-size: 1.6rem;
+            margin-bottom: 2px;
+        }
+        .impact-metric .metric-label {
+            font-size: 0.85rem;
+            line-height: 1.2;
+        }
+        
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(135deg, #ff6b35, #ff9a56);
+            border-radius: 2px;
+        }
+        
+        #energyMap {
+            height: 450px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .progress {
+            height: 20px;
+            border-radius: 10px;
+        }
+        .progress-bar {
+            border-radius: 10px;
+        }
+        .progress-enhanced {
+            height: 16px;
+            border-radius: 8px;
+            background-color: rgba(0,0,0,0.05);
+        }
+        .progress-bar-enhanced {
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            line-height: 16px;
+            text-align: center;
+        }
+        
+        .location-details-card {
+            background: #ffffff;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        
+        .energy-source {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .energy-source-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            width: 45px;
+            text-align: center;
+        }
+        
+        .timeline-container {
+            position: relative;
+            padding-left: 25px;
+            margin-top: 15px;
+        }
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 5px;
+            bottom: 5px;
+            width: 2px;
+            background: #dee2e6;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .timeline-item::before {
+            content: '\f0a9';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: -28px;
+            top: 15px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            color: white;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+        .chart-container h4 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .achievement-metric {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .achievement-metric .metric-large {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .achievement-metric .metric-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <img src="adra-logo.png" alt="ADRA Logo" class="logo-left">
+            <div class="logo-right">
+                <div class="seppa-fundacao">FUNDAÇÃO</div>
+                <div class="seppa-text">SEPPA</div>
+            </div>
+            <h1><i class="fas fa-chart-line"></i> Mozambique EIA Dashboard - Energy</h1>
+            <p class="subtitle">Cabo Delgado Province - Planned Environmental Impact Assessment & Projections</p>
+            <div class="text-center mb-3">
+                <a href="index.html" class="btn btn-light btn-sm">
+                    <i class="fas fa-home me-2"></i>Back to Home
+                </a>
+            </div>
+            <div class="row g-3 justify-content-center">
+                <div class="col-6 col-md-3">
+                    <div class="achievement-metric">
+                        <div class="metric-large text-warning">4</div>
+                        <div class="metric-label">Planned Sites</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="achievement-metric">
+                        <div class="metric-large text-danger">2.88</div>
+                        <div class="metric-label">tCO₂e/month Target</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="achievement-metric">
+                        <div class="metric-large text-info">60,000</div>
+                        <div class="metric-label">People in Area</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="achievement-metric">
+                        <div class="metric-large text-success">30,000</div>
+                        <div class="metric-label">Beneficiaries</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="row g-3">
+            <!-- Left Column -->
+            <div class="col-lg-7">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Project Locations & Details</h4>
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <div id="energyMap"></div>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="location-details-card">
+                                    <div class="card-header fw-bold">Montepuez</div>
+                                    <div class="card-body p-2">
+                                        <p class="mb-1 small">Primary hub for logistics and coordination. Key challenges include grid reliability and transport for surrounding communities.</p>
+                                        <span class="badge bg-primary">Logistics Hub</span>
+                                        <span class="badge bg-danger">Grid Issues</span>
+                                    </div>
+                                </div>
+                                <div class="location-details-card">
+                                    <div class="card-header fw-bold">Metuge</div>
+                                    <div class="card-body p-2">
+                                        <p class="mb-1 small">Focus on displaced populations. High demand for energy-saving solutions and alternative cooking fuels.</p>
+                                        <span class="badge bg-warning">IDP Focus</span>
+                                        <span class="badge bg-success">Cookstoves</span>
+                                    </div>
+                                </div>
+                                <div class="location-details-card">
+                                    <div class="card-header fw-bold">Pemba</div>
+                                    <div class="card-body p-2">
+                                        <p class="mb-1 small">Coastal urban center facing infrastructure strain. Mitigation focuses on local procurement and reducing transport needs.</p>
+                                        <span class="badge bg-info">Urban Center</span>
+                                        <span class="badge bg-secondary">Procurement</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-5">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">EIA Impact Projections</h4>
+                        <div class="chart-container mb-2">
+                            <canvas id="environmentalImpactChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="energyMixChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-1">
+            <!-- Critical Challenges -->
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Critical Energy Challenges</h4>
+                        <div class="mitigation-item">
+                            <h6 class="text-danger"><i class="fas fa-gas-pump card-title-icon"></i>High Fossil Fuel Dependency</h6>
+                            <p class="small mb-0">Over 85% of project transport relies on gasoline/diesel, exacerbated by poor road infrastructure requiring 4x4s.</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6 class="text-warning"><i class="fas fa-plug-circle-xmark card-title-icon"></i>Grid Unreliability & Inefficiency</h6>
+                            <p class="small mb-0">Frequent outages (6-8 weekly) and lack of solar at supplier locations lead to an estimated 2.88 tCO₂e of unaddressed monthly emissions.</p>
+                        </div>
+                         <div class="mitigation-item">
+                            <h6 class="text-info"><i class="fas fa-road-barrier card-title-icon"></i>Logistical & Seasonal Hurdles</h6>
+                            <p class="small mb-0">Dispersed sites (>200km apart) and seasonal flooding severely restrict access, increasing transport costs and emissions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Planned Mitigation Measures -->
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Planned Mitigation Measures</h4>
+                        <div class="mitigation-item">
+                            <h6><i class="fas fa-solar-panel card-title-icon"></i>Introduce Renewable Energy</h6>
+                            <p class="small mb-0">Target 50-74% solar energy for WASH activities and promote local solar adoption to counter grid instability.</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6><i class="fas fa-route card-title-icon"></i>Optimize Logistics & Procurement</h6>
+                            <p class="small mb-0">Establish 3 central delivery points to reduce transport distances by over 100km and prioritize local procurement to minimize long-haul trips.</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6><i class="fas fa-fire-burner card-title-icon"></i>Promote Energy Efficiency</h6>
+                            <p class="small mb-0">Distribute energy-saving cookstoves and provide training on efficient cooking techniques and responsible fuelwood harvesting.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-1">
+            <!-- Community Energy Sources -->
+            <div class="col-lg-5">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Community Energy Sources</h4>
+                        <div class="energy-source">
+                            <div class="energy-source-icon text-danger"><i class="fas fa-tree"></i></div>
+                            <div>
+                                <h6 class="mb-0">Traditional Biomass</h6>
+                                <p class="small text-muted mb-0">Wood and charcoal are the primary cooking fuels, used in inefficient traditional stoves.</p>
+                            </div>
+                        </div>
+                        <div class="energy-source">
+                            <div class="energy-source-icon text-warning"><i class="fas fa-fire-flame-curved"></i></div>
+                            <div>
+                                <h6 class="mb-0">LPG & Other Fuels</h6>
+                                <p class="small text-muted mb-0">Limited use of LPG and paper as alternative cooking fuels in some communities.</p>
+                            </div>
+                        </div>
+                        <div class="energy-source">
+                            <div class="energy-source-icon text-success"><i class="fas fa-leaf"></i></div>
+                            <div>
+                                <h6 class="mb-0">Efficient Stoves</h6>
+                                <p class="small text-muted mb-0">Very limited adoption of energy-efficient cooking stoves presents a key intervention opportunity.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Energy Transformation Roadmap -->
+            <div class="col-lg-7">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Energy Transformation Roadmap</h4>
+                        <div class="timeline-container">
+                            <div class="timeline-item">
+                                <h6 class="mb-1">Phase 1: Foundational Interventions</h6>
+                                <p class="small text-muted mb-0">Distribute cookstoves, conduct sensitization on fuelwood, and establish central delivery points.</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h6 class="mb-1">Phase 2: Renewable Energy Integration</h6>
+                                <p class="small text-muted mb-0">Implement solar solutions for WASH and explore options for community-level solar power.</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h6 class="mb-1">Phase 3: Sustainable Practices</h6>
+                                <p class="small text-muted mb-0">Monitor adoption rates, reinforce training, and assess the impact of optimized logistics on overall emissions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EIA-Based Target Metrics -->
+        <h2 class="section-title">EIA-Based Target Metrics & Projections</h2>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Population Coverage</h5>
+                    <div class="metric-large text-info">60,000</div>
+                    <p class="metric-label mb-2">Total People in Project Area</p>
+                    <div class="mt-2">
+                        <span class="badge bg-info">Cabo Delgado Province</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Direct Beneficiaries</h5>
+                    <div class="metric-large text-success">30,000</div>
+                    <p class="metric-label mb-2">Planned Project Assistance</p>
+                    <div class="mt-2">
+                        <span class="badge bg-success">50% Coverage</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom text-center p-3">
+                    <h5 class="mb-2">Displaced Persons</h5>
+                    <div class="metric-large text-warning">15,000</div>
+                    <p class="metric-label mb-2">Priority Target Group</p>
+                    <div class="mt-2">
+                        <span class="badge bg-warning">High Priority</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environmental Impact Summary -->
+        <div class="row g-3 mt-2">
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Projected Environmental Benefits</h4>
+                        <div class="mitigation-item">
+                            <h6 class="text-success"><i class="fas fa-leaf card-title-icon"></i>CO₂ Emission Reduction</h6>
+                            <p class="small mb-1">Target: <strong>2.88 tCO₂e/month</strong> through energy efficiency measures</p>
+                            <p class="small text-muted mb-0">Achieved through cookstove distribution and transport optimization</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6 class="text-primary"><i class="fas fa-solar-panel card-title-icon"></i>Renewable Energy Integration</h6>
+                            <p class="small mb-1">Target: <strong>50-74% solar energy</strong> for WASH activities</p>
+                            <p class="small text-muted mb-0">Reducing grid dependency and fossil fuel consumption</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6 class="text-warning"><i class="fas fa-tree card-title-icon"></i>Forest Conservation</h6>
+                            <p class="small mb-1">Target: <strong>60% fuel reduction</strong> through efficient cookstoves</p>
+                            <p class="small text-muted mb-0">Reducing pressure on local forest resources</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card-custom">
+                    <div class="card-body">
+                        <h4 class="section-title">Social Impact Projections</h4>
+                        <div class="mitigation-item">
+                            <h6 class="text-info"><i class="fas fa-home card-title-icon"></i>Household Benefits</h6>
+                            <p class="small mb-1">Target: <strong>Reduced cooking time</strong> and fuel costs for families</p>
+                            <p class="small text-muted mb-0">Improved quality of life through energy-efficient solutions</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6 class="text-success"><i class="fas fa-lungs card-title-icon"></i>Health Improvements</h6>
+                            <p class="small mb-1">Target: <strong>Reduced indoor air pollution</strong> from efficient stoves</p>
+                            <p class="small text-muted mb-0">Better respiratory health outcomes for women and children</p>
+                        </div>
+                        <div class="mitigation-item">
+                            <h6 class="text-primary"><i class="fas fa-graduation-cap card-title-icon"></i>Capacity Building</h6>
+                            <p class="small mb-1">Target: <strong>Community training</strong> on sustainable practices</p>
+                            <p class="small text-muted mb-0">Long-term behavior change and environmental awareness</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize map
+            const map = L.map('energyMap', {
+                keyboard: false,
+                zoomControl: true,
+                closePopupOnClick: false
+            }).setView([-12.8, 39.5], 8);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            const locations = [
+                { name: 'Montepuez', lat: -13.1258, lng: 38.7097 },
+                { name: 'Metuge', lat: -12.9667, lng: 40.3833 },
+                { name: 'Mieze', lat: -13.0667, lng: 40.4167 },
+                { name: 'Pemba', lat: -12.9667, lng: 40.5167 }
+            ];
+
+            locations.forEach(location => {
+                const marker = L.marker([location.lat, location.lng], {
+                    interactive: false
+                }).addTo(map);
+                marker.off();
+                marker._icon.style.pointerEvents = 'none';
+            });
+
+            // Initialize Charts
+            const envCtx = document.getElementById('environmentalImpactChart');
+            if (envCtx) {
+                new Chart(envCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Target Reduction', 'Current Emissions'],
+                        datasets: [{
+                            data: [2.88, 12.12],
+                            backgroundColor: ['#28a745', '#dc3545']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            const energyCtx = document.getElementById('energyMixChart');
+            if (energyCtx) {
+                new Chart(energyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Current', 'Planned'],
+                        datasets: [
+                            {
+                                label: 'Renewable %',
+                                data: [5, 65],
+                                backgroundColor: '#28a745'
+                            },
+                            {
+                                label: 'Fossil %',
+                                data: [95, 35],
+                                backgroundColor: '#dc3545'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+
+        });
+    </script>
+</body>
+</html>
